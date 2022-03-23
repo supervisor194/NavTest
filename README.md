@@ -6,7 +6,7 @@ This example takes 3 View structs, A,B and C that want to live in a stack naviga
 we may want to pop the initial view open to the 3rd View C, while maintaining the nice navigation that the
 stack navigation view provides, the back buttons and forward navigation.  The following code has A,B and C 
 conform to a few protocols and adds them to a containing model called the <code>class NavModel: ObservableObject</code>.
-In addition the A,B and C are 'wrapped' by 3 separate View structs to maintain some additional state about what
+Additonally, the A,B and C are 'wrapped' by 3 separate View structs to maintain some additional state about what
 has appeared or disappeared.  While not strictly needed to get programmatic navigation working, these wrappers 
 can be helpful in more complex situations where one does not want to instantiate the underlying A,B and C multiple
 times.  One can remove the <code>Wrapped(A|B|C)</code> and push the onAppear/onDisappear elsewhere.  The Wrappers
