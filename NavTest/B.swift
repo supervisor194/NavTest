@@ -54,7 +54,7 @@ struct B: View, NavView {
     var body: some View {
         VStack {
             Text("Welcome to B")
-            NavigationLink(destination: WrappedC(navModel: vModel.navModel, toSelect: KeyedId(key: "only", id: 1)), tag: 1, selection: $vModel.selected["foo"]) {
+            NavigationLink(destination: WrappedC(navModel: vModel.navModel, toSelect: KeyedId(key: "onCAppear", id: 1)), tag: 1, selection: $vModel.selected["C"]) {
                 Text("go to C")
             }
         }

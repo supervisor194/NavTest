@@ -60,14 +60,16 @@ struct C: View, NavView {
         VStack {
             Text("Welcome to C")
             
+            Text( vModel.selected["C"] == nil ? "none" : String(vModel.selected["C"]!!))
+            
             Button(action: {
                 let navModel = vModel.navModel
-                navModel.navTo = NavTo(upTo: navModel.a, downTo: [ DownTo(view: navModel.a!,ids: [KeyedId(key: "foo", id: 1)])]
+                navModel.navTo = NavTo(upTo: navModel.a, downTo: [ DownTo(view: navModel.a!,ids: [KeyedId(key: "B", id: 1)])]
                                                                     )
                 navModel.dismiss(vModel.uuid)
                 _dismiss()
             }) {
-                Label("BackToA", systemImage: "arrow-left")
+                Label("BackToA, DownToB", systemImage: "arrow.left")
             }
         }
         .onAppear {

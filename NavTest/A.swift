@@ -54,23 +54,23 @@ struct A: View, NavView {
     var body: some View {
         VStack {
             Text("On view A")
-            NavigationLink(destination: WrappedB(navModel: vModel.navModel, toSelect: KeyedId(key: "only", id: 1)), tag: 1, selection: $vModel.selected["foo"]) {
+            NavigationLink(destination: WrappedB(navModel: vModel.navModel, toSelect: KeyedId(key: "onBAppear", id: 1)), tag: 1, selection: $vModel.selected["B"]) {
                 Text("to B")
             }
-            NavigationLink(destination: WrappedC(navModel: vModel.navModel, toSelect: KeyedId(key: "only", id: 1)), tag: 2, selection: $vModel.selected["C"]) {
+            NavigationLink(destination: WrappedC(navModel: vModel.navModel, toSelect: KeyedId(key: "onCAppear", id: 1)), tag: 2, selection: $vModel.selected["C"]) {
                 Text("to C")
             }
             HStack {
                 ForEach( (1...5), id: \.self) { i in
                     Button(action: {
-                        vModel.selected["only"] = i
+                        vModel.selected["buttons"] = i
                     }) {
                         Image(systemName: "circle.fill")
                             .font(.largeTitle)
-                            .foregroundColor( vModel.selected["only"] == i ? .blue : .white)
+                            .foregroundColor( vModel.selected["buttons"] == i ? .blue : .white)
                             .overlay(
                                 Text(String(i))
-                                    .foregroundColor( vModel.selected["only"] == i ? .white : .blue))
+                                    .foregroundColor( vModel.selected["buttons"] == i ? .white : .blue))
                     }
                 }
             }

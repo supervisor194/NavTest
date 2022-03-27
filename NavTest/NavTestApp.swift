@@ -10,22 +10,21 @@ struct NavTestApp: App {
         navModel.b = B(navModel: navModel)
         navModel.c = C(navModel: navModel)
         
-        // example to select button 4 on view A
-        /*
-        let navTo = [
-            NavTo(view: navModel.a!, id: 4)
-        ]
-         */
+        // to select button 4 on view A
+        let navTo = NavTo(downTo: [
+            DownTo(view: navModel.a!, ids: [KeyedId(key: "buttons", id: 4)])
+        ])
         
-        // example to descend to view C
-        /*
-        let navTo = [
-            NavTo(view: navModel.a!, subId: 1),
-            NavTo(view: navModel.b!, subId: 1)
-        ]
+        
+        // descend to B then C
+        let navTo2 = NavTo(downTo: [
+            DownTo(view: navModel.a!, ids: [KeyedId(key: "B", id: 1)]),
+            DownTo(view: navModel.b!, ids: [KeyedId(key: "C", id: 1)]),
+            DownTo(view: navModel.c!, ids: [KeyedId(key: "C", id: 7)])
+        ])
+        
+        navModel.navTo = navTo2
          
-        navModel.navTo = navTo
-         */
     }
     
     var body: some Scene {
