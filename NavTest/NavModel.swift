@@ -14,7 +14,6 @@ protocol NavViewModel : AnyObject {
     var name: String { get }
     var uuid: UUID { get }
     var selected: [String:Int?] { get set }
-    var subSelect: [String:Int?] { get set}
     var isVisible: Bool { get set }
     var navModel: NavModel { get }
     func doOnAppear(currentView: NavView, dismiss: DismissAction, toSelect: KeyedId?)
@@ -25,10 +24,10 @@ extension NavViewModel {
     
     func doOnAppear(currentView: NavView, dismiss: DismissAction, toSelect: KeyedId?) {
         isVisible = true
-        if let nnavto = navModel.nnavTo {
+        if let nnavto = navModel.navTo {
             if let upTo = nnavto.upTo {
                 if same(upTo, currentView) {
-                    navModel.nnavTo!.upTo = nil
+                    navModel.navTo!.upTo = nil
                 } else {
                     navModel.dismiss(uuid)
                     dismiss()
@@ -68,8 +67,7 @@ struct KeyedId {
 
 struct DownTo {
     var view: NavView
-    var id: KeyedId?
-    var subId: KeyedId?
+    var ids: [KeyedId]
 }
 
 struct NavTo {
@@ -92,7 +90,7 @@ class NavModel : ObservableObject {
     var b: B?
     var c: C?
     
-    var nnavTo: NavTo? = nil
+    var navTo: NavTo? = nil
            
     var dismissed: [UUID: Int] = [:]
     
@@ -101,7 +99,6 @@ class NavModel : ObservableObject {
     
     func dismiss(_ uuid: UUID) {
         dismissed[uuid, default: 0] += 1
-        // _dismiss()
     }
     
     func onDisappear(_ uuid: UUID) {
@@ -116,20 +113,15 @@ class NavModel : ObservableObject {
         
     
     @MainActor
-    func doSelects(viewModel: inout NavViewModel, id: KeyedId?, subId: KeyedId?) async {
-        if let id = id {
+    func doSelects(viewModel: inout NavViewModel, ids: [KeyedId]) async {
+        for id in ids {
             viewModel.selected[id.key] = id.id
         }
-
-        if let subId = subId {
-            viewModel.subSelect[subId.key] = subId.id
-        }
-        
     }
     
     @MainActor
     func navigateOnAppear() async {
-        if nnavTo == nil {
+        guard let navTo = navTo else {
             return
         }
         
@@ -137,18 +129,17 @@ class NavModel : ObservableObject {
             try? await Task.sleep(nanoseconds: UInt64(1e9*1.0/20.0))
         }
         
-        while nnavTo!.downTo != nil  {
-            let nt = nnavTo!.downTo!.first!
-            var viewModel = nt.view.viewModel
-            // print("looking for : \(viewModel.name)")
-            while !viewModel.isVisible {
-                try? await Task.sleep(nanoseconds: UInt64(1e9*1.0/10.0))
+        if let downTo = navTo.downTo {
+            for nt in downTo {
+                var viewModel = nt.view.viewModel
+                while !viewModel.isVisible {
+                    try? await Task.sleep(nanoseconds: UInt64(1e9*1.0/10.0))
+                }
+                await doSelects(viewModel: &viewModel, ids: nt.ids)
             }
-            // print("\(viewModel.name) is visible")
-            await doSelects(viewModel: &viewModel, id: nt.id, subId: nt.subId)
-            nnavTo!.removeFirst()
         }
-       
+        
+        self.navTo = nil
     }
 
 }

@@ -4,7 +4,6 @@ class AViewModel : ObservableObject, NavViewModel {
     var name: String = "AViewModel"
     let uuid: UUID = UUID.init()
     @Published var selected: [String: Int?] = [:]
-    @Published var subSelect: [String: Int?] = [:]
     var isVisible: Bool = false
     var navModel: NavModel
     
@@ -55,10 +54,10 @@ struct A: View, NavView {
     var body: some View {
         VStack {
             Text("On view A")
-            NavigationLink(destination: WrappedB(navModel: vModel.navModel, toSelect: KeyedId(key: "only", id: 1)), tag: 1, selection: $vModel.subSelect["foo"]) {
+            NavigationLink(destination: WrappedB(navModel: vModel.navModel, toSelect: KeyedId(key: "only", id: 1)), tag: 1, selection: $vModel.selected["foo"]) {
                 Text("to B")
             }
-            NavigationLink(destination: WrappedC(navModel: vModel.navModel, toSelect: KeyedId(key: "only", id: 1)), tag: 2, selection: $vModel.subSelect["C"]) {
+            NavigationLink(destination: WrappedC(navModel: vModel.navModel, toSelect: KeyedId(key: "only", id: 1)), tag: 2, selection: $vModel.selected["C"]) {
                 Text("to C")
             }
             HStack {

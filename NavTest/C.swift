@@ -4,7 +4,6 @@ class CViewModel : ObservableObject, NavViewModel {
     var name: String = "CViewModel"
     let uuid: UUID = UUID.init()
     @Published var selected: [String: Int?] = [:]
-    @Published var subSelect: [String: Int?] = [:]
     var isVisible: Bool = false
     var navModel: NavModel
 
@@ -63,7 +62,7 @@ struct C: View, NavView {
             
             Button(action: {
                 let navModel = vModel.navModel
-                navModel.nnavTo = NavTo(upTo: navModel.a, downTo: [ DownTo(view: navModel.a!,subId: KeyedId(key: "foo", id: 1))]
+                navModel.navTo = NavTo(upTo: navModel.a, downTo: [ DownTo(view: navModel.a!,ids: [KeyedId(key: "foo", id: 1)])]
                                                                     )
                 navModel.dismiss(vModel.uuid)
                 _dismiss()
