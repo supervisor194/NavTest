@@ -1,20 +1,28 @@
-
 import SwiftUI
 
 class CViewModel : ObservableObject, NavViewModel {
     var name: String = "CViewModel"
-    @Published var selected: Int?
-    @Published var subSelected: Int?
+    let uuid: UUID = UUID.init()
+    @Published var selected: [String: Int?] = [:]
+    @Published var subSelect: [String: Int?] = [:]
     var isVisible: Bool = false
+    var navModel: NavModel
+
+    init(navModel: NavModel) {
+        self.navModel = navModel
+    }
+    
 }
 
 struct WrappedC : View {
+    @Environment(\.dismiss) var _dismiss
+
     @ObservedObject var navModel: NavModel
     @ObservedObject var vModel : CViewModel
     let c: C
-    let toSelect: Int
+    let toSelect: KeyedId
     
-    init(navModel: NavModel, toSelect: Int) {
+    init(navModel: NavModel, toSelect: KeyedId) {
         c = navModel.c!
         vModel = c.vModel
         self.navModel = navModel
@@ -24,23 +32,17 @@ struct WrappedC : View {
     var body: some View {
         c
             .onAppear {
-                vModel.selected = toSelect
+                vModel.doOnAppear(currentView: c, dismiss: _dismiss, toSelect: toSelect)
             }
             .onDisappear {
-                vModel.selected = nil
+                vModel.doOnDisappear(toNil: toSelect)
             }
     }
 }
 
 
 struct C: View, NavView {
-    @ObservedObject var navModel : NavModel
-    
-    var navigationModel: NavModel {
-        get {
-            navModel
-        }
-    }
+    @Environment(\.dismiss) var _dismiss
     
     @ObservedObject var vModel : CViewModel
     
@@ -51,13 +53,29 @@ struct C: View, NavView {
     }
 
     init(navModel: NavModel) {
-        self.navModel = navModel
-        self.vModel = CViewModel()
+        self.vModel = CViewModel(navModel: navModel)
     }
-    
+
+
     var body: some View {
         VStack {
             Text("Welcome to C")
+            
+            Button(action: {
+                let navModel = vModel.navModel
+                navModel.nnavTo = NavTo(upTo: navModel.a, downTo: [ DownTo(view: navModel.a!,subId: KeyedId(key: "foo", id: 1))]
+                                                                    )
+                navModel.dismiss(vModel.uuid)
+                _dismiss()
+            }) {
+                Label("BackToA", systemImage: "arrow-left")
+            }
+        }
+        .onAppear {
+            print("C internal onAppear()")
+        }
+        .onDisappear {
+            print("C internal onDisappear()")
         }
     }
 }

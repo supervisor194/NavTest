@@ -1,26 +1,27 @@
-
 import SwiftUI
 
 class AViewModel : ObservableObject, NavViewModel {
-    
     var name: String = "AViewModel"
-    
-    @Published var selected: Int?
-    
-    @Published var subSelected: Int?
-    
+    let uuid: UUID = UUID.init()
+    @Published var selected: [String: Int?] = [:]
+    @Published var subSelect: [String: Int?] = [:]
     var isVisible: Bool = false
+    var navModel: NavModel
     
+    init(navModel: NavModel) {
+        self.navModel = navModel
+    }
 }
 
 struct WrappedA : View {
+    @Environment(\.dismiss) var _dismiss
     
     @ObservedObject var navModel: NavModel
     @ObservedObject var vModel : AViewModel
     let a: A
-    let toSelect: Int
+    let toSelect: KeyedId
     
-    init(navModel: NavModel, toSelect: Int) {
+    init(navModel: NavModel, toSelect: KeyedId) {
         a = navModel.a!
         vModel = a.vModel
         self.navModel = navModel
@@ -30,24 +31,15 @@ struct WrappedA : View {
     var body: some View {
         a
             .onAppear {
-                vModel.selected = toSelect
+                vModel.doOnAppear(currentView: a, dismiss: _dismiss, toSelect: toSelect)
             }
             .onDisappear {
-                vModel.selected = nil
+                vModel.doOnDisappear(toNil: toSelect)
             }
     }
 }
 
 struct A: View, NavView {
-    
-    @ObservedObject var navModel: NavModel
-    
-    var navigationModel: NavModel {
-        get {
-            navModel
-        }
-    }
-    
     @ObservedObject var vModel: AViewModel
     
     var viewModel: NavViewModel {
@@ -57,39 +49,38 @@ struct A: View, NavView {
     }
     
     init(navModel: NavModel) {
-        self.navModel = navModel
-        self.vModel = AViewModel()
+        self.vModel = AViewModel(navModel: navModel)
     }
     
     var body: some View {
         VStack {
             Text("On view A")
-            NavigationLink(destination: WrappedB(navModel: navModel, toSelect: 1), tag: 1, selection: $vModel.subSelected) {
+            NavigationLink(destination: WrappedB(navModel: vModel.navModel, toSelect: KeyedId(key: "only", id: 1)), tag: 1, selection: $vModel.subSelect["foo"]) {
                 Text("to B")
             }
-            NavigationLink(destination: WrappedC(navModel: navModel, toSelect: 1), tag: 2, selection: $vModel.subSelected) {
+            NavigationLink(destination: WrappedC(navModel: vModel.navModel, toSelect: KeyedId(key: "only", id: 1)), tag: 2, selection: $vModel.subSelect["C"]) {
                 Text("to C")
             }
             HStack {
                 ForEach( (1...5), id: \.self) { i in
                     Button(action: {
-                        vModel.selected = i
+                        vModel.selected["only"] = i
                     }) {
                         Image(systemName: "circle.fill")
                             .font(.largeTitle)
-                            .foregroundColor( vModel.selected == i ? .blue : .white)
+                            .foregroundColor( vModel.selected["only"] == i ? .blue : .white)
                             .overlay(
                                 Text(String(i))
-                                    .foregroundColor( vModel.selected == i ? .white : .blue))
+                                    .foregroundColor( vModel.selected["only"] == i ? .white : .blue))
                     }
                 }
             }
         }
         .onAppear {
-            vModel.isVisible = true
+            print("A internal onAppear()")
         }
         .onDisappear {
-            vModel.isVisible = false 
+            print("A internal onDisappear()")
         }
         .navigationBarTitle("A")
         .navigationBarTitleDisplayMode(.inline)
